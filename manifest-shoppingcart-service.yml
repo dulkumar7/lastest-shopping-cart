@@ -1,0 +1,20 @@
+---
+applications:
+- name: shoppingcart-service
+  path: ./shoppingcart-service/target/shoppingcart-service-0.0.1-SNAPSHOT.jar
+  routes:
+  - route: shoppingcart-service.cfapps.io
+  instances: 1
+  services:
+    - eshop-db
+  env:
+    DATABASE_URL : mysql://b3d55b8c968789:e031ea02@us-cdbr-iron-east-01.cleardb.net:3306/ad_c00625718a6dd86?reconnect=true
+    spring.datasource.username : user
+    spring.datasource.password : user
+    spring.datasource.testWhileIdle : true
+    spring.datasource.validationQuery : SELECT 1
+    spring.jpa.show-sql : true
+    spring.jpa.hibernate.ddl-auto : none
+    spring.jpa.hibernate.naming-strategy : org.hibernate.cfg.ImprovedNamingStrategy
+    spring.jpa.properties.hibernate.dialect : org.hibernate.dialect.MySQL5Dialect
+    
