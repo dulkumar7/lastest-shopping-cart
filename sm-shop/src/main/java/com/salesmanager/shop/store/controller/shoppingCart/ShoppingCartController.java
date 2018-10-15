@@ -14,6 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 
 import com.salesmanager.core.business.services.catalog.product.PricingService;
 import com.salesmanager.core.business.services.catalog.product.ProductService;
@@ -33,6 +35,7 @@ import com.salesmanager.core.model.catalog.product.Product;
 import com.salesmanager.core.model.customer.Customer;
 import com.salesmanager.core.model.merchant.MerchantStore;
 import com.salesmanager.core.model.reference.language.Language;
+import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.shop.constants.Constants;
 import com.salesmanager.shop.model.shop.PageInformation;
 import com.salesmanager.shop.model.shoppingcart.ShoppingCartData;
@@ -136,6 +139,8 @@ public class ShoppingCartController extends AbstractController {
 
 		ShoppingCartData shoppingCart=null;
 		
+		RestTemplate resttemplate = new RestTemplate();
+		
 
 		//Look in the HttpSession to see if a customer is logged in
 	    MerchantStore store = getSessionAttribute(Constants.MERCHANT_STORE, request);
@@ -144,7 +149,11 @@ public class ShoppingCartController extends AbstractController {
 
 
 		if(customer != null) {
-			com.salesmanager.core.model.shoppingcart.ShoppingCart customerCart = shoppingCartService.getByCustomer(customer);
+//			com.salesmanager.core.model.shoppingcart.ShoppingCart customerCart = shoppingCartService.getByCustomer(customer);
+			
+			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity("http://localhost:8081/shoppingcart/customer-id/"+customer.getId(), ShoppingCart.class );
+			ShoppingCart customerCart = res.getBody();
+			
 			if(customerCart!=null) {
 				shoppingCart = shoppingCartFacade.getShoppingCartData( customerCart, language);
 
@@ -157,7 +166,19 @@ public class ShoppingCartController extends AbstractController {
 
 		
 		if(shoppingCart==null && !StringUtils.isBlank(item.getCode())) {
-			shoppingCart = shoppingCartFacade.getShoppingCartData(item.getCode(), store, language);
+			
+
+			//InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("shoppingcart-service"+store.getId().intValue()+"/"+code, false);
+			String uri = "http://localhost:8081/shoppingcart/"+store.getId().intValue()+"/"+item.getCode();
+			
+			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+			ShoppingCart cartModel = res.getBody();
+			if(cartModel!=null) {
+			  shoppingCart  = shoppingCartFacade.getShoppingCartData(cartModel, language);
+			}
+//			shoppingCart = shoppingCartFacade.getShoppingCartData(item.getCode(), store, language);
+			
 		}
 
 

@@ -22,7 +22,9 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +91,20 @@ public class ShoppingCartModelPopulator
        try{
         if ( shoppingCart.getId() > 0  && StringUtils.isNotBlank( shoppingCart.getCode()))
         {
-            cartMdel = shoppingCartService.getByCode( shoppingCart.getCode(), store );
+//            cartMdel = shoppingCartService.getByCode( shoppingCart.getCode(), store );
+            
+            RestTemplate resttemplate = new RestTemplate();
+
+			String uri = "http://localhost:8081/shoppingcart/"+store.getId().intValue()+"/"+shoppingCart.getCode();
+			
+			//InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("shoppingcart-service"+store.getId().intValue()+"/"+code, false);
+					
+			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+			cartMdel = res.getBody();
+//			ShoppingCart shoppingCart = shoppingCartRepository.findByCode(store.getId(), code);
+			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
             if(cartMdel==null){
                 cartMdel=new ShoppingCart();
                 cartMdel.setShoppingCartCode( shoppingCart.getCode() );

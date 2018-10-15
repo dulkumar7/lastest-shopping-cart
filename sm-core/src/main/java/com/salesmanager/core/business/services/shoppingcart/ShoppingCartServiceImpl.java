@@ -17,11 +17,13 @@ import com.salesmanager.core.model.shipping.ShippingProduct;
 import com.salesmanager.core.model.shoppingcart.ShoppingCart;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem;
 import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ResourceBanner;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,12 +41,14 @@ import java.util.Set;
 public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long, ShoppingCart>
 		implements ShoppingCartService {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ShoppingCartServiceImpl.class);
 	private ShoppingCartRepository shoppingCartRepository;
 	
 	/*@Autowired
 	private EurekaClient eurekaClient;
 */
 
+	
 	@Inject
 	private ProductService productService;
 
@@ -80,7 +84,19 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 
 		try {
 
-			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
+//			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
+			
+					
+					  RestTemplate resttemplate = new RestTemplate();
+
+			String uri = "http://localhost:8081/shoppingcart/customer-id/"+customer.getId();
+			
+			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+			ShoppingCart shoppingCart =   res.getBody();
+			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
+			
 			getPopulatedShoppingCart(shoppingCart);
 			if (shoppingCart != null && shoppingCart.isObsolete()) {
 				delete(shoppingCart);
@@ -117,7 +133,17 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	public ShoppingCart getById(final Long id, final MerchantStore store) throws ServiceException {
 
 		try {
-			ShoppingCart shoppingCart = shoppingCartRepository.findById(store.getId(), id);
+//			ShoppingCart shoppingCart = shoppingCartRepository.findById(store.getId(), id);
+			
+			  RestTemplate resttemplate = new RestTemplate();
+			  
+			  			String uri = "http://localhost:8081/shoppingcart/merchant-id/"+store.getId()+"/cart-id/"+id;
+			  			
+			  			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+			  			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+			  			ShoppingCart shoppingCart =   res.getBody();
+			  			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+			  			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
 			if (shoppingCart == null) {
 				return null;
 			}
@@ -147,7 +173,17 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	
 
 		try {
-			ShoppingCart shoppingCart = shoppingCartRepository.findOne(id);
+//			ShoppingCart shoppingCart = shoppingCartRepository.findOne(id);
+			
+			  RestTemplate resttemplate = new RestTemplate();
+
+				String uri = "http://localhost:8081/shoppingcart/cart-id/"+id;
+				
+				LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+				ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+				ShoppingCart shoppingCart =   res.getBody();
+				LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+				LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
 			if (shoppingCart == null) {
 				return null;
 			}
@@ -232,7 +268,7 @@ https://shoppingcart-service.cfapps.io
 		
 
 		try {
-			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity("http://localhost:8081/shoppingcart/"+customer.getId(), ShoppingCart.class );
+			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity("http://localhost:8081/shoppingcart/customer-id/"+customer.getId(), ShoppingCart.class );
 			ShoppingCart shoppingCart = res.getBody();
 //					ShoppingCart shoppingCart =  shoppingCartRepository.findByCustomer(customer.getId());
 			if (shoppingCart == null) {

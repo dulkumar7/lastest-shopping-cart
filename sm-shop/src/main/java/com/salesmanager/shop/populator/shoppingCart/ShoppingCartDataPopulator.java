@@ -100,21 +100,32 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
 
                     ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
                     shoppingCartItem.setCode(cart.getCode());
+                    String itemName = null;
+                    if(null != item.getProduct()){
+                    	
                     shoppingCartItem.setProductCode(item.getProduct().getSku());
+                      itemName = item.getProduct().getProductDescription().getName();
+                      ProductImage image = item.getProduct().getProductImage();
+                      if(image!=null && imageUtils!=null) {
+                          String imagePath = imageUtils.buildProductImageUtils(store, item.getProduct().getSku(), image.getProductImage());
+                          shoppingCartItem.setImage(imagePath);
+                      }
+                      if(!CollectionUtils.isEmpty(item.getProduct().getDescriptions())) {
+                      	for(ProductDescription productDescription : item.getProduct().getDescriptions()) {
+                      		if(language != null && language.getId().intValue() == productDescription.getLanguage().getId().intValue()) {
+                      			itemName = productDescription.getName();
+                      			break;
+                      		}
+                      	}
+                      }
+                }
                     shoppingCartItem.setProductVirtual(item.isProductVirtual());
 
                     shoppingCartItem.setProductId(item.getProductId());
                     shoppingCartItem.setId(item.getId());
                     
-                    String itemName = item.getProduct().getProductDescription().getName();
-                    if(!CollectionUtils.isEmpty(item.getProduct().getDescriptions())) {
-                    	for(ProductDescription productDescription : item.getProduct().getDescriptions()) {
-                    		if(language != null && language.getId().intValue() == productDescription.getLanguage().getId().intValue()) {
-                    			itemName = productDescription.getName();
-                    			break;
-                    		}
-                    	}
-                    }
+                    
+                   
                     
                     shoppingCartItem.setName(itemName);
 
@@ -126,11 +137,7 @@ public class ShoppingCartDataPopulator extends AbstractDataPopulator<ShoppingCar
                     
                     shoppingCartItem.setProductPrice(item.getItemPrice());
                     shoppingCartItem.setSubTotal(pricingService.getDisplayAmount(item.getSubTotal(), store));
-                    ProductImage image = item.getProduct().getProductImage();
-                    if(image!=null && imageUtils!=null) {
-                        String imagePath = imageUtils.buildProductImageUtils(store, item.getProduct().getSku(), image.getProductImage());
-                        shoppingCartItem.setImage(imagePath);
-                    }
+                   
                     Set<com.salesmanager.core.model.shoppingcart.ShoppingCartAttributeItem> attributes = item.getAttributes();
                     if(attributes!=null) {
                         List<ShoppingCartAttribute> cartAttributes = new ArrayList<ShoppingCartAttribute>();
