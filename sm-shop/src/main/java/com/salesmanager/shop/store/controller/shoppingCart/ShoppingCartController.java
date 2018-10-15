@@ -174,10 +174,10 @@ public class ShoppingCartController extends AbstractController {
 			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
 			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
 			ShoppingCart cartModel = res.getBody();
-			if(cartModel!=null) {
-			  shoppingCart  = shoppingCartFacade.getShoppingCartData(cartModel, language);
-			}
-//			shoppingCart = shoppingCartFacade.getShoppingCartData(item.getCode(), store, language);
+//			if(cartModel!=null) {
+//			  shoppingCart  = shoppingCartFacade.getShoppingCartData(cartModel, language);
+//			}
+			shoppingCart = shoppingCartFacade.getShoppingCartData(item.getCode(), store, language);
 			
 		}
 
