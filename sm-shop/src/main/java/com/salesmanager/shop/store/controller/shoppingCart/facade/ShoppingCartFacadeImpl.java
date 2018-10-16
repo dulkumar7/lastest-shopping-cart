@@ -19,7 +19,9 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -376,13 +378,21 @@ public class ShoppingCartFacadeImpl
     {
 
         ShoppingCart cart = null;
+        RestTemplate resttemplate =  new RestTemplate();
         try
         {
             if ( customer != null )
             {
                 LOG.info( "Reteriving customer shopping cart..." );
 
-                cart = shoppingCartService.getShoppingCart( customer );
+//                cart = shoppingCartService.getShoppingCart( customer );
+               
+                String uri = "http://localhost:8081/shoppingcart/customer-id/"+customer.getId();
+    			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+    			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+    			cart   =   res.getBody();
+    			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+    			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
 
             }
 
@@ -390,18 +400,27 @@ public class ShoppingCartFacadeImpl
             {
                 if ( StringUtils.isNotBlank( shoppingCartId ) && cart == null )
                 {
-                    cart = shoppingCartService.getByCode( shoppingCartId, store );
+//                    cart = shoppingCartService.getByCode( shoppingCartId, store );
+                    
+                    String uri = "http://localhost:8081/shoppingcart/"+store.getId().intValue()+"/"+shoppingCartId;
+        			
+        			//InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("shoppingcart-service"+store.getId().intValue()+"/"+code, false);
+        					
+        			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+        			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+        			ShoppingCart shoppingCart = res.getBody();
+//        			ShoppingCart shoppingCart = shoppingCartRepository.findByCode(store.getId(), code);
+        			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+        			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
                 }
 
             }
         }
-        catch ( ServiceException ex )
+        catch ( Exception ex )
         {
             LOG.error( "Error while retriving cart from customer", ex );
         }
-        catch( NoResultException nre) {
-        	//nothing
-        }
+       
 
         if ( cart == null )
         {
