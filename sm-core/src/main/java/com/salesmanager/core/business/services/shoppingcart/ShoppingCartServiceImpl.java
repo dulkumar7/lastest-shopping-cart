@@ -78,38 +78,38 @@ public class ShoppingCartServiceImpl extends SalesManagerEntityServiceImpl<Long,
 	/**
 	 * Retrieve a {@link ShoppingCart} cart for a given customer
 	 */
-	@Override
-	@Transactional
-	public ShoppingCart getShoppingCart(final Customer customer) throws ServiceException {
-
-		try {
-
-//			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
-			
-					
-					  RestTemplate resttemplate = new RestTemplate();
-
-			String uri = "http://localhost:8081/shoppingcart/customer-id/"+customer.getId();
-			
-			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
-			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
-			ShoppingCart shoppingCart =   res.getBody();
-			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
-			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
-			
-			getPopulatedShoppingCart(shoppingCart);
-			if (shoppingCart != null && shoppingCart.isObsolete()) {
-				delete(shoppingCart);
-				return null;
-			} else {
-				return shoppingCart;
-			}
-
-		} catch (Exception e) {
-			throw new ServiceException(e);
-		}
-
-	}
+//	@Override
+//	@Transactional
+//	public ShoppingCart getShoppingCart(final Customer customer) throws ServiceException {
+//
+//		try {
+//
+////			ShoppingCart shoppingCart = shoppingCartRepository.findByCustomer(customer.getId());
+//			
+//					
+//					  RestTemplate resttemplate = new RestTemplate();
+//
+//			String uri = "http://localhost:8081/shoppingcart/customer-id/"+customer.getId();
+//			
+//			LOG.info("+++++++++++++ Calling Shooping cart service uri:- "+uri);
+//			ResponseEntity<ShoppingCart> res = resttemplate.getForEntity(uri, ShoppingCart.class );
+//			ShoppingCart shoppingCart =   res.getBody();
+//			LOG.info("++++++++++++++++++++++++++ Response code from Shooping cart service:- "+res.getStatusCode());
+//			LOG.info("++++++++++++++++++++++++++ Response body from Shooping cart service:- "+res.getBody());
+//			
+//			getPopulatedShoppingCart(shoppingCart);
+//			if (shoppingCart != null && shoppingCart.isObsolete()) {
+//				delete(shoppingCart);
+//				return null;
+//			} else {
+//				return shoppingCart;
+//			}
+//
+//		} catch (Exception e) {
+//			throw new ServiceException(e);
+//		}
+//
+//	}
 
 	/**
 	 * Save or update a {@link ShoppingCart} for a given customer

@@ -13,7 +13,7 @@ import com.salesmanager.core.model.shoppingcart.ShoppingCartItem;
 
 public interface ShoppingCartService extends SalesManagerEntityService<Long, ShoppingCart> {
 
-	ShoppingCart getShoppingCart(Customer customer) throws ServiceException;
+//	ShoppingCart getShoppingCart(Customer customer) throws ServiceException;
 
 	void saveOrUpdate(ShoppingCart shoppingCart) throws ServiceException;
 
